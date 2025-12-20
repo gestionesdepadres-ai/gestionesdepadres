@@ -10,9 +10,9 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDS8rO-EcqB0RkPyfpuErbZQdFIGshmW0M",
@@ -25,8 +25,13 @@
     };
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    window.firebaseApp = app;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      console.log("Firebase Initialized Successfully");
+      window.firebaseApp = firebase; // Expose globally for F12 check
+    } catch (e) {
+      console.error("Firebase Initialization Error:", e);
+    }
   </script>
   <style>
     @media print {
@@ -61,12 +66,38 @@
     window.storage = {
       get: async (key) => new Promise((resolve, reject) => {
         try {
-          const value = localStorage.getItem(key);
-          value === null ? reject(new Error('Key not found')) : resolve({ value });
+          if (!window.firebaseApp) {
+            // Fallback if firebase not ready (shouldn't happen with await, but safety)
+            const value = localStorage.getItem(key);
+            value === null ? reject(new Error('Key not found')) : resolve({ value });
+            return;
+          }
+          firebase.database().ref(key).once('value')
+            .then((snapshot) => {
+              const val = snapshot.val();
+              // App expects { value: "stringified_json" } structure if legacy, 
+              // but we are storing the stringified JSON directly as the value in DB.
+              // So val will be the string string.
+              if (val === null) {
+                reject(new Error('Key not found'));
+              } else {
+                resolve({ value: val });
+              }
+            })
+            .catch(reject);
         } catch (error) { reject(error); }
       }),
       set: async (key, value) => new Promise((resolve, reject) => {
-        try { localStorage.setItem(key, value); resolve(); }
+        try {
+          if (!window.firebaseApp) {
+            localStorage.setItem(key, value);
+            resolve();
+            return;
+          }
+          firebase.database().ref(key).set(value)
+            .then(() => resolve())
+            .catch(reject);
+        }
         catch (error) { reject(error); }
       })
     };
