@@ -10,6 +10,24 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDS8rO-EcqB0RkPyfpuErbZQdFIGshmW0M",
+      authDomain: "gestiones-de-padres.firebaseapp.com",
+      databaseURL: "https://gestiones-de-padres-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "gestiones-de-padres",
+      storageBucket: "gestiones-de-padres.firebasestorage.app",
+      messagingSenderId: "325952346244",
+      appId: "1:325952346244:web:de383cdfa94d3763760ad1"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    window.firebaseApp = app;
+  </script>
   <style>
     @media print {
       @page {
@@ -39,65 +57,19 @@
 
 <body>
   <div id="root"></div>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
   <script>
-    // --- CONFIGURACIÓN DE FIREBASE ---
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDS8rO-EcqB0RkPyfpuErbZQdFIGshmW0M",
-  authDomain: "gestiones-de-padres.firebaseapp.com",
-  databaseURL: "https://gestiones-de-padres-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gestiones-de-padres",
-  storageBucket: "gestiones-de-padres.firebasestorage.app",
-  messagingSenderId: "325952346244",
-  appId: "1:325952346244:web:de383cdfa94d3763760ad1"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-      db = firebase.database();
-      console.log("Firebase inicializado correctamente");
-    } catch (e) {
-      console.error("Error inicializando Firebase. Revisa la configuración.", e);
-    }
-
-    // Reemplazar window.storage para usar Firebase
     window.storage = {
-      get: async (key) => new Promise(async (resolve, reject) => {
+      get: async (key) => new Promise((resolve, reject) => {
         try {
-          if (!db) throw new Error("Firebase no está configurado o falló al iniciar.");
-          const snapshot = await db.ref(key).once('value');
-          if (snapshot.exists()) {
-            resolve({ value: snapshot.val() });
-          } else {
-            console.warn(`Clave ${key} no encontrada en Firebase.`);
-            // Para mantener compatibilidad con la app que espera 'reject' si no hay datos (a veces):
-            reject(new Error('Key not found'));
-          }
-        } catch (error) {
-          console.error(`Error leyendo ${key} de Firebase:`, error);
-          reject(error);
-        }
+          const value = localStorage.getItem(key);
+          value === null ? reject(new Error('Key not found')) : resolve({ value });
+        } catch (error) { reject(error); }
       }),
-      set: async (key, value) => new Promise(async (resolve, reject) => {
-        try {
-          if (!db) throw new Error("Firebase no está configurado.");
-          await db.ref(key).set(value);
-          resolve();
-        } catch (error) {
-          console.error(`Error escribiendo ${key} en Firebase:`, error);
-          reject(error);
-        }
+      set: async (key, value) => new Promise((resolve, reject) => {
+        try { localStorage.setItem(key, value); resolve(); }
+        catch (error) { reject(error); }
       })
     };
-  </script>
-  <script>
     const LucideIcon = ({ d, size = 24, color = "currentColor", strokeWidth = 2, className = "" }) =>
       React.createElement('svg', {
         xmlns: "http://www.w3.org/2000/svg", width: size, height: size,
@@ -105,55 +77,26 @@ const app = initializeApp(firebaseConfig);
         strokeWidth: strokeWidth, strokeLinecap: "round",
         strokeLinejoin: "round", className: className
       }, typeof d === 'string' ? React.createElement('path', { d: d }) : d);
-    window.Calendar = (props) => LucideIcon({
-      ...props, d: "M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2
-  2 0 0 1 - 2 - 2V6a2 2 0 0 1 2-2z" });
-  window.ChefHat = (props) => LucideIcon({
-        ...props, d: "M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1
-  7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6ZM6 17h12" });
-  window.Users = (props) => LucideIcon({
-          ...props, d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m13-10a4 4 0 1 0 0-8 4 4
-  0 0 0 0 8Zm - 8 0a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" });
-  window.Printer = (props) => LucideIcon({
-            ...props, d: "M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1
-  2 2v5a2 2 0 0 1 - 2 2h - 2m- 12 0v4h12v - 4Z" });
-  window.ArrowLeft = (props) => LucideIcon({ ...props, d: "m12 19-7-7 7-7m7 7H5" });
-          window.Edit = (props) => LucideIcon({
-            ...props, d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0
-  2-2v- 7m - 1.5 - 9.5a2.121 2.121 0 0 1 3 3L12 20l - 4 1 1 - 4Z" });
-  window.Save = (props) => LucideIcon({
-              ...props, d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z
-  M17 21v - 8H7v8 M7 3v5h8" });
-  window.Plus = (props) => LucideIcon({ ...props, d: "M5 12h14m-7-7v14" });
-              window.ShoppingCart = (props) => LucideIcon({
-                ...props, d: "m1 1 4 4 3-3M17 17a1 1 0 1 0 2 0 1 1 0 1 0-2 0Zm-8 0a1 1 0
-  1 0 2 0 1 1 0 1 0-2 0ZM1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" });
-  window.Trash2 = (props) => LucideIcon({
-                  ...props, d: "M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2
-  2-2h4c1 0 2 1 2 2v2m - 6 5v6m4 - 6v6" });
-  window.Check = (props) => LucideIcon({ ...props, d: "M20 6 9 17l-5-5" });
-                  window.Lock = (props) => LucideIcon({
-                    ...props, d: "M19 11h-6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-7a2 2 0 0
-  0-2 - 2Zm- 3 0V7a3 3 0 1 0 - 6 0v4" });
-  window.ChevronLeft = (props) => LucideIcon({ ...props, d: "m15 18-6-6 6-6" });
-                  window.ChevronRight = (props) => LucideIcon({ ...props, d: "m9 18 6-6-6-6" });
-                  window.MessageSquare = (props) => LucideIcon({
-                    ...props, d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1
-  2 2z" });
-  window.MessageSquare = (props) => LucideIcon({
-                      ...props, d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1
-  2 2z" });
-  window.Bell = (props) => LucideIcon({ ...props, d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" });
-                      window.Package = (props) => LucideIcon({
-                        ...props, d: "M16.5 9.4 7.5 4.21 M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2
-  0l - 7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7- 4A2 2 0 0 0 21 16z M3.27 6.96 12 12.01l8.73 - 5.05 M12
-  22.08V12" });
-  window.Clipboard = (props) => LucideIcon({
-                          ...props, d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2
-  0 0 1 2 - 2h2 M15 2H9a1 1 0 0 0 - 1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0 - 1 - 1z" });
-  window.UploadIcon = (props) => LucideIcon({
-                            ...props, d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12
-  3v12" });
+    window.Calendar = (props) => LucideIcon({ ...props, d: "M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" });
+    window.ChefHat = (props) => LucideIcon({ ...props, d: "M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6ZM6 17h12" });
+    window.Users = (props) => LucideIcon({ ...props, d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m13-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 0a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" });
+    window.Printer = (props) => LucideIcon({ ...props, d: "M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2m-12 0v4h12v-4Z" });
+    window.ArrowLeft = (props) => LucideIcon({ ...props, d: "m12 19-7-7 7-7m7 7H5" });
+    window.Edit = (props) => LucideIcon({ ...props, d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.5-9.5a2.121 2.121 0 0 1 3 3L12 20l-4 1 1-4Z" });
+    window.Save = (props) => LucideIcon({ ...props, d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z M17 21v-8H7v8 M7 3v5h8" });
+    window.Plus = (props) => LucideIcon({ ...props, d: "M5 12h14m-7-7v14" });
+    window.ShoppingCart = (props) => LucideIcon({ ...props, d: "m1 1 4 4 3-3M17 17a1 1 0 1 0 2 0 1 1 0 1 0-2 0Zm-8 0a1 1 0 1 0 2 0 1 1 0 1 0-2 0ZM1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" });
+    window.Trash2 = (props) => LucideIcon({ ...props, d: "M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 5v6m4-6v6" });
+    window.Check = (props) => LucideIcon({ ...props, d: "M20 6 9 17l-5-5" });
+    window.Lock = (props) => LucideIcon({ ...props, d: "M19 11h-6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-3 0V7a3 3 0 1 0-6 0v4" });
+    window.ChevronLeft = (props) => LucideIcon({ ...props, d: "m15 18-6-6 6-6" });
+    window.ChevronRight = (props) => LucideIcon({ ...props, d: "m9 18 6-6-6-6" });
+    window.MessageSquare = (props) => LucideIcon({ ...props, d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" });
+    window.MessageSquare = (props) => LucideIcon({ ...props, d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" });
+    window.Bell = (props) => LucideIcon({ ...props, d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" });
+    window.Package = (props) => LucideIcon({ ...props, d: "M16.5 9.4 7.5 4.21 M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96 12 12.01l8.73-5.05 M12 22.08V12" });
+    window.Clipboard = (props) => LucideIcon({ ...props, d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2 M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" });
+    window.UploadIcon = (props) => LucideIcon({ ...props, d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" });
   </script>
   <script type="text/babel">
     const { useState, useEffect } = React;
