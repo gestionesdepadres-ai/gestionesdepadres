@@ -2098,135 +2098,137 @@ ${q.events.map(e => `[${e.time}] ${e.user}: ${e.action} - ${e.detail}`).join('\n
                     </div>
 
                     <h3 className="text-lg font-bold mb-3 no-print">{section.title}</h3>
-                    <div className="grid gap-1 text-xs" style={{ gridTemplateColumns: `auto repeat(${section.indices.length}, 1fr)` }}>
-                      <div className="bg-gray-800 text-white p-2 font-bold"></div>
-                      {section.indices.map(idx => {
-                        const dateObj = new Date(currentWeek.days[idx].date);
-                        return (
-                          <div key={idx} className="bg-gray-800 text-white p-2 font-bold text-center" style={{ fontSize: `${menuHeaderPixelSize}px` }}>
-                            <div>{days[idx]}</div>
-                            <div style={{ fontSize: `${Math.max(10, menuHeaderPixelSize - 2)}px` }}>{dateObj.getDate()}/{dateObj.getMonth() + 1}</div>
-                          </div>
-                        );
-                      })}
+                    <div className="overflow-x-auto">
+                      <div className="grid gap-1 text-xs min-w-[900px]" style={{ gridTemplateColumns: `auto repeat(${section.indices.length}, 1fr)` }}>
+                        <div className="bg-gray-800 text-white p-2 font-bold"></div>
+                        {section.indices.map(idx => {
+                          const dateObj = new Date(currentWeek.days[idx].date);
+                          return (
+                            <div key={idx} className="bg-gray-800 text-white p-2 font-bold text-center" style={{ fontSize: `${menuHeaderPixelSize}px` }}>
+                              <div>{days[idx]}</div>
+                              <div style={{ fontSize: `${Math.max(10, menuHeaderPixelSize - 2)}px` }}>{dateObj.getDate()}/{dateObj.getMonth() + 1}</div>
+                            </div>
+                          );
+                        })}
 
-                      {mealTypes.map(mealType => (
-                        <React.Fragment key={mealType}>
-                          <div className="bg-gray-200 border-2 border-gray-800 p-2 font-bold flex items-center justify-center">
-                            {mealType}
-                          </div>
-                          {section.indices.map(dayIdx => {
-                            return (
-                              <div key={dayIdx} className="border-2 border-gray-800 p-2 relative">
-                                <div className="mb-2 relative z-0">
-                                  {editMode ? (
-                                    <textarea
-                                      className="w-full text-xs border rounded p-1 resize-y"
-                                      style={{
-                                        minHeight: `${menuCellHeight}px`,
-                                        fontSize: `${textFormat.fontSize}px`,
-                                        fontWeight: textFormat.bold ? 'bold' : 'normal',
-                                        textAlign: textFormat.align
-                                      }}
-                                      value={getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'menu')}
-                                      onChange={(e) => updateMenu(currentWeek.weekStart, dayIdx, mealType, 'menu', e.target.value)}
-                                    />
-                                  ) : (
-                                    <div style={{ minHeight: `${menuCellHeight}px`, fontSize: `${textFormat.fontSize}px`, fontWeight: textFormat.bold ? 'bold' : 'normal', textAlign: textFormat.align }} className="whitespace-pre-wrap">
-                                      {canViewMenuContent(currentWeek) ? (getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'menu') || '-') :
-                                        <div className="flex items-center justify-center h-full text-gray-400 font-bold italic bg-gray-50 text-xs">
-                                          MENU EN EDICIÓN
-                                        </div>
-                                      }
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="grid grid-cols-2 gap-1 relative z-20">
-                                  <div>
-                                    <div className="font-semibold" style={{ fontSize: `${menuHeaderPixelSize}px` }}>PREPARA:</div>
+                        {mealTypes.map(mealType => (
+                          <React.Fragment key={mealType}>
+                            <div className="bg-gray-200 border-2 border-gray-800 p-2 font-bold flex items-center justify-center">
+                              {mealType}
+                            </div>
+                            {section.indices.map(dayIdx => {
+                              return (
+                                <div key={dayIdx} className="border-2 border-gray-800 p-2 relative">
+                                  <div className="mb-2 relative z-0">
                                     {editMode ? (
-                                      <select
-                                        className={`w-full border rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara') || '']}`}
-                                        style={{ fontSize: `${menuHeaderPixelSize}px` }}
-                                        value={getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara')}
-                                        onChange={(e) => updateMenu(currentWeek.weekStart, dayIdx, mealType, 'prepara', e.target.value)}
-                                      >
-                                        {people.map(p => (
-                                          <option key={p} value={p}>{p.toUpperCase() || '-'}</option>
-                                        ))}
-                                      </select>
+                                      <textarea
+                                        className="w-full text-xs border rounded p-1 resize-y"
+                                        style={{
+                                          minHeight: `${menuCellHeight}px`,
+                                          fontSize: `${textFormat.fontSize}px`,
+                                          fontWeight: textFormat.bold ? 'bold' : 'normal',
+                                          textAlign: textFormat.align
+                                        }}
+                                        value={getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'menu')}
+                                        onChange={(e) => updateMenu(currentWeek.weekStart, dayIdx, mealType, 'menu', e.target.value)}
+                                      />
                                     ) : (
-                                      <div
-                                        className={`text-center rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara') || '']}`}
-                                        style={{ fontSize: `${menuHeaderPixelSize}px` }}
-                                      >
-                                        {canViewMenuContent(currentWeek) ?
-                                          (getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara') ? getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara').toUpperCase() : '-')
-                                          : '-'}
+                                      <div style={{ minHeight: `${menuCellHeight}px`, fontSize: `${textFormat.fontSize}px`, fontWeight: textFormat.bold ? 'bold' : 'normal', textAlign: textFormat.align }} className="whitespace-pre-wrap">
+                                        {canViewMenuContent(currentWeek) ? (getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'menu') || '-') :
+                                          <div className="flex items-center justify-center h-full text-gray-400 font-bold italic bg-gray-50 text-xs">
+                                            MENU EN EDICIÓN
+                                          </div>
+                                        }
                                       </div>
                                     )}
                                   </div>
-                                  <div>
-                                    <div className="font-semibold" style={{ fontSize: `${menuHeaderPixelSize}px` }}>SIRVE:</div>
-                                    {editMode ? (
-                                      <select
-                                        className={`w-full border rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve') || '']}`}
-                                        style={{ fontSize: `${menuHeaderPixelSize}px` }}
-                                        value={getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve')}
-                                        onChange={(e) => updateMenu(currentWeek.weekStart, dayIdx, mealType, 'sirve', e.target.value)}
-                                      >
-                                        {people.map(p => (
-                                          <option key={p} value={p}>{p.toUpperCase() || '-'}</option>
-                                        ))}
-                                      </select>
-                                    ) : (
-                                      <div
-                                        className={`text-center rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve') || '']}`}
-                                        style={{ fontSize: `${menuHeaderPixelSize}px` }}
-                                      >
-                                        {canViewMenuContent(currentWeek) ?
-                                          (getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve') ? getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve').toUpperCase() : '-')
-                                          : '-'}
-                                      </div>
-                                    )}
-
-                                    {/* SLOT SYSTEM */}
-                                    <div className="flex gap-1 justify-center mt-1">
-                                      {[0, 1, 2].map(slotIdx => {
-                                        const slots = getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'slots') || [null, null, null];
-                                        const slot = slots[slotIdx];
-
-                                        let btnClass = "w-6 h-6 flex items-center justify-center rounded border text-xs font-bold transition-colors ";
-
-                                        if (!slot) {
-                                          btnClass += "bg-white border-gray-300 text-gray-300 hover:border-gray-400 hover:text-gray-400";
-                                        } else if (slot.user === user.id) {
-                                          btnClass += "bg-green-100 border-green-300 text-green-700 hover:bg-green-200 hover:border-red-300 hover:text-red-600"; // Hover to delete?
-                                        } else {
-                                          // Occupied by other
-                                          // const slotUser = users.find(u => u.id === slot.user); // Unused
-                                          btnClass += (colors[slot.user] || "bg-gray-200 text-gray-600") + " opacity-80 cursor-not-allowed";
-                                        }
-
-                                        return (
-                                          <button
-                                            key={slotIdx}
-                                            onClick={() => handleSlotInteraction(currentWeek.weekStart, dayIdx, mealType, slotIdx)}
-                                            className={btnClass}
-                                            title={slot ? `${slot.user.toUpperCase()}: ${slot.note || ''}` : 'Disponible'}
-                                          >
-                                            {slotIdx + 1}
-                                          </button>
-                                        );
-                                      })}
+                                  <div className="grid grid-cols-2 gap-1 relative z-20">
+                                    <div>
+                                      <div className="font-semibold" style={{ fontSize: `${menuHeaderPixelSize}px` }}>PREPARA:</div>
+                                      {editMode ? (
+                                        <select
+                                          className={`w-full border rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara') || '']}`}
+                                          style={{ fontSize: `${menuHeaderPixelSize}px` }}
+                                          value={getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara')}
+                                          onChange={(e) => updateMenu(currentWeek.weekStart, dayIdx, mealType, 'prepara', e.target.value)}
+                                        >
+                                          {people.map(p => (
+                                            <option key={p} value={p}>{p.toUpperCase() || '-'}</option>
+                                          ))}
+                                        </select>
+                                      ) : (
+                                        <div
+                                          className={`text-center rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara') || '']}`}
+                                          style={{ fontSize: `${menuHeaderPixelSize}px` }}
+                                        >
+                                          {canViewMenuContent(currentWeek) ?
+                                            (getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara') ? getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'prepara').toUpperCase() : '-')
+                                            : '-'}
+                                        </div>
+                                      )}
                                     </div>
-                                  </div> {/* End Meal Block */}
+                                    <div>
+                                      <div className="font-semibold" style={{ fontSize: `${menuHeaderPixelSize}px` }}>SIRVE:</div>
+                                      {editMode ? (
+                                        <select
+                                          className={`w-full border rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve') || '']}`}
+                                          style={{ fontSize: `${menuHeaderPixelSize}px` }}
+                                          value={getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve')}
+                                          onChange={(e) => updateMenu(currentWeek.weekStart, dayIdx, mealType, 'sirve', e.target.value)}
+                                        >
+                                          {people.map(p => (
+                                            <option key={p} value={p}>{p.toUpperCase() || '-'}</option>
+                                          ))}
+                                        </select>
+                                      ) : (
+                                        <div
+                                          className={`text-center rounded p-0.5 ${colors[getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve') || '']}`}
+                                          style={{ fontSize: `${menuHeaderPixelSize}px` }}
+                                        >
+                                          {canViewMenuContent(currentWeek) ?
+                                            (getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve') ? getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'sirve').toUpperCase() : '-')
+                                            : '-'}
+                                        </div>
+                                      )}
+
+                                      {/* SLOT SYSTEM */}
+                                      <div className="flex gap-1 justify-center mt-1">
+                                        {[0, 1, 2].map(slotIdx => {
+                                          const slots = getMenuValue(currentWeek.weekStart, dayIdx, mealType, 'slots') || [null, null, null];
+                                          const slot = slots[slotIdx];
+
+                                          let btnClass = "w-6 h-6 flex items-center justify-center rounded border text-xs font-bold transition-colors ";
+
+                                          if (!slot) {
+                                            btnClass += "bg-white border-gray-300 text-gray-300 hover:border-gray-400 hover:text-gray-400";
+                                          } else if (slot.user === user.id) {
+                                            btnClass += "bg-green-100 border-green-300 text-green-700 hover:bg-green-200 hover:border-red-300 hover:text-red-600"; // Hover to delete?
+                                          } else {
+                                            // Occupied by other
+                                            // const slotUser = users.find(u => u.id === slot.user); // Unused
+                                            btnClass += (colors[slot.user] || "bg-gray-200 text-gray-600") + " opacity-80 cursor-not-allowed";
+                                          }
+
+                                          return (
+                                            <button
+                                              key={slotIdx}
+                                              onClick={() => handleSlotInteraction(currentWeek.weekStart, dayIdx, mealType, slotIdx)}
+                                              className={btnClass}
+                                              title={slot ? `${slot.user.toUpperCase()}: ${slot.note || ''}` : 'Disponible'}
+                                            >
+                                              {slotIdx + 1}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    </div> {/* End Meal Block */}
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          })}
-                        </React.Fragment>
-                      ))}
+                              );
+                            })}
+                          </React.Fragment>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 );
@@ -3185,119 +3187,121 @@ ${q.events.map(e => `[${e.time}] ${e.user}: ${e.action} - ${e.detail}`).join('\n
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-2">
-                  {days.map((dayName, idx) => {
-                    const isToday = weekDates[idx] === today;
-                    return (
-                      <div key={idx} className={`border-2 rounded-lg p-2 ${isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-gray-50'}`}>
-                        <div className={`font-bold text-center mb-2 ${isToday ? 'text-blue-700' : 'text-gray-700'}`}>
-                          {dayName} {new Date(weekDates[idx]).getDate()}
-                        </div>
-
-                        <div className="mb-2">
-                          <div className="text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Mañana</div>
-                          {/* History View (Read Only / Editable) */}
-                          <div className="bg-gray-50 border rounded mb-1 overflow-y-auto" style={{ height: `${taskCellHeight * 0.6}px` }}>
-                            {(weekTask?.days?.[idx]?.morning || '').split('\n').map((line, i) => {
-                              if (!line.trim()) return null;
-                              const signature = `(${user.id.toUpperCase()})`;
-                              const isMyLine = line.includes(signature);
-                              const canEditLine = user.isAdmin || isMyLine;
-
-                              return (
-                                <div key={i} className="text-xs p-1 border-b last:border-0 bg-white flex items-center gap-1">
-                                  {canEditLine ? (
-                                    user.isAdmin ? (
-                                      <input
-                                        className="w-full bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
-                                        value={line}
-                                        onChange={(e) => updateHistoryLine(weekStart, idx, 'morning', i, e.target.value)}
-                                      />
-                                    ) : (
-                                      <>
-                                        <input
-                                          className="flex-1 bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
-                                          value={line.replace(signature, '').trim()}
-                                          onChange={(e) => updateHistoryLine(weekStart, idx, 'morning', i, `${e.target.value} ${signature}`)}
-                                        />
-                                        <span className="text-gray-400 font-bold select-none">{signature}</span>
-                                      </>
-                                    )
-                                  ) : (
-                                    <span className="text-gray-700 px-1 block">{line}</span>
-                                  )}
-                                </div>
-                              );
-                            })}
+                <div className="overflow-x-auto pb-2">
+                  <div className="grid grid-cols-7 gap-2 min-w-[900px]">
+                    {days.map((dayName, idx) => {
+                      const isToday = weekDates[idx] === today;
+                      return (
+                        <div key={idx} className={`border-2 rounded-lg p-2 ${isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-gray-50'}`}>
+                          <div className={`font-bold text-center mb-2 ${isToday ? 'text-blue-700' : 'text-gray-700'}`}>
+                            {dayName} {new Date(weekDates[idx]).getDate()}
                           </div>
-                          {/* New Input (Append Only) */}
-                          <textarea
-                            className="w-full p-2 border rounded resize-none focus:ring-2 focus:ring-blue-500 text-sm mb-2 bg-yellow-50"
-                            style={{
-                              height: `${taskCellHeight * 0.4}px`,
-                              fontSize: `${taskTextFormat.fontSize}px`,
-                              fontWeight: taskTextFormat.bold ? 'bold' : 'normal',
-                              textAlign: taskTextFormat.align
-                            }}
-                            placeholder="Añadir tarea..."
-                            value={pendingTaskInputs[`${weekStart}-${idx}-morning`] || ''}
-                            onChange={(e) => handleTaskInputChange(weekStart, idx, 'morning', e.target.value)}
-                          />
-                        </div>
 
-                        <div>
-                          <div className="text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Tarde</div>
-                          {/* History View (Read Only / Editable) */}
-                          <div className="bg-gray-50 border rounded mb-1 overflow-y-auto" style={{ height: `${taskCellHeight * 0.6}px` }}>
-                            {(weekTask?.days?.[idx]?.afternoon || '').split('\n').map((line, i) => {
-                              if (!line.trim()) return null;
-                              const signature = `(${user.id.toUpperCase()})`;
-                              const isMyLine = line.includes(signature);
-                              const canEditLine = user.isAdmin || isMyLine;
+                          <div className="mb-2">
+                            <div className="text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Mañana</div>
+                            {/* History View (Read Only / Editable) */}
+                            <div className="bg-gray-50 border rounded mb-1 overflow-y-auto" style={{ height: `${taskCellHeight * 0.6}px` }}>
+                              {(weekTask?.days?.[idx]?.morning || '').split('\n').map((line, i) => {
+                                if (!line.trim()) return null;
+                                const signature = `(${user.id.toUpperCase()})`;
+                                const isMyLine = line.includes(signature);
+                                const canEditLine = user.isAdmin || isMyLine;
 
-                              return (
-                                <div key={i} className="text-xs p-1 border-b last:border-0 bg-white flex items-center gap-1">
-                                  {canEditLine ? (
-                                    user.isAdmin ? (
-                                      <input
-                                        className="w-full bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
-                                        value={line}
-                                        onChange={(e) => updateHistoryLine(weekStart, idx, 'afternoon', i, e.target.value)}
-                                      />
-                                    ) : (
-                                      <>
+                                return (
+                                  <div key={i} className="text-xs p-1 border-b last:border-0 bg-white flex items-center gap-1">
+                                    {canEditLine ? (
+                                      user.isAdmin ? (
                                         <input
-                                          className="flex-1 bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
-                                          value={line.replace(signature, '').trim()}
-                                          onChange={(e) => updateHistoryLine(weekStart, idx, 'afternoon', i, `${e.target.value} ${signature}`)}
+                                          className="w-full bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
+                                          value={line}
+                                          onChange={(e) => updateHistoryLine(weekStart, idx, 'morning', i, e.target.value)}
                                         />
-                                        <span className="text-gray-400 font-bold select-none">{signature}</span>
-                                      </>
-                                    )
-                                  ) : (
-                                    <span className="text-gray-700 px-1 block">{line}</span>
-                                  )}
-                                </div>
-                              );
-                            })}
+                                      ) : (
+                                        <>
+                                          <input
+                                            className="flex-1 bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
+                                            value={line.replace(signature, '').trim()}
+                                            onChange={(e) => updateHistoryLine(weekStart, idx, 'morning', i, `${e.target.value} ${signature}`)}
+                                          />
+                                          <span className="text-gray-400 font-bold select-none">{signature}</span>
+                                        </>
+                                      )
+                                    ) : (
+                                      <span className="text-gray-700 px-1 block">{line}</span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {/* New Input (Append Only) */}
+                            <textarea
+                              className="w-full p-2 border rounded resize-none focus:ring-2 focus:ring-blue-500 text-sm mb-2 bg-yellow-50"
+                              style={{
+                                height: `${taskCellHeight * 0.4}px`,
+                                fontSize: `${taskTextFormat.fontSize}px`,
+                                fontWeight: taskTextFormat.bold ? 'bold' : 'normal',
+                                textAlign: taskTextFormat.align
+                              }}
+                              placeholder="Añadir tarea..."
+                              value={pendingTaskInputs[`${weekStart}-${idx}-morning`] || ''}
+                              onChange={(e) => handleTaskInputChange(weekStart, idx, 'morning', e.target.value)}
+                            />
                           </div>
-                          <textarea
-                            className="w-full p-2 border rounded resize-none focus:ring-2 focus:ring-indigo-500 text-sm bg-yellow-50"
-                            style={{
-                              height: `${taskCellHeight * 0.4}px`,
-                              fontSize: `${taskTextFormat.fontSize}px`,
-                              fontWeight: taskTextFormat.bold ? 'bold' : 'normal',
-                              textAlign: taskTextFormat.align
-                            }}
-                            placeholder="Añadir tarea..."
-                            value={pendingTaskInputs[`${weekStart}-${idx}-afternoon`] || ''}
-                            onChange={(e) => handleTaskInputChange(weekStart, idx, 'afternoon', e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    );
 
-                  })}
+                          <div>
+                            <div className="text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Tarde</div>
+                            {/* History View (Read Only / Editable) */}
+                            <div className="bg-gray-50 border rounded mb-1 overflow-y-auto" style={{ height: `${taskCellHeight * 0.6}px` }}>
+                              {(weekTask?.days?.[idx]?.afternoon || '').split('\n').map((line, i) => {
+                                if (!line.trim()) return null;
+                                const signature = `(${user.id.toUpperCase()})`;
+                                const isMyLine = line.includes(signature);
+                                const canEditLine = user.isAdmin || isMyLine;
+
+                                return (
+                                  <div key={i} className="text-xs p-1 border-b last:border-0 bg-white flex items-center gap-1">
+                                    {canEditLine ? (
+                                      user.isAdmin ? (
+                                        <input
+                                          className="w-full bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
+                                          value={line}
+                                          onChange={(e) => updateHistoryLine(weekStart, idx, 'afternoon', i, e.target.value)}
+                                        />
+                                      ) : (
+                                        <>
+                                          <input
+                                            className="flex-1 bg-transparent border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1"
+                                            value={line.replace(signature, '').trim()}
+                                            onChange={(e) => updateHistoryLine(weekStart, idx, 'afternoon', i, `${e.target.value} ${signature}`)}
+                                          />
+                                          <span className="text-gray-400 font-bold select-none">{signature}</span>
+                                        </>
+                                      )
+                                    ) : (
+                                      <span className="text-gray-700 px-1 block">{line}</span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <textarea
+                              className="w-full p-2 border rounded resize-none focus:ring-2 focus:ring-indigo-500 text-sm bg-yellow-50"
+                              style={{
+                                height: `${taskCellHeight * 0.4}px`,
+                                fontSize: `${taskTextFormat.fontSize}px`,
+                                fontWeight: taskTextFormat.bold ? 'bold' : 'normal',
+                                textAlign: taskTextFormat.align
+                              }}
+                              placeholder="Añadir tarea..."
+                              value={pendingTaskInputs[`${weekStart}-${idx}-afternoon`] || ''}
+                              onChange={(e) => handleTaskInputChange(weekStart, idx, 'afternoon', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      );
+
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
