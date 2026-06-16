@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.12/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -129,7 +129,7 @@
     window.Clipboard = (props) => LucideIcon({ ...props, d: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2 M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" });
     window.UploadIcon = (props) => LucideIcon({ ...props, d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" });
   </script>
-  <script type="text/babel">
+  <script type="text/babel"data-type="module">
     const { useState, useEffect } = React;
     const { Calendar, ChefHat, Users, Printer, ArrowLeft, Edit, Save, Plus, ShoppingCart, Trash2, Check, Lock, ChevronLeft, ChevronRight, MessageSquare, Bell, Package, Clipboard, UploadIcon } = window;
     const ParentManager = () => {
