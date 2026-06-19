@@ -474,7 +474,10 @@
             if (Array.isArray(localEmailLogs) && localEmailLogs.length > 0) {
               const mergedEmailLogs = [...loadedEmailLogs];
               localEmailLogs.forEach(localLog => {
-                if (localLog && localLog.id && !mergedEmailLogs.some(l => l.id === localLog.id)) {
+                if (localLog && (
+                  (localLog.id && !mergedEmailLogs.some(l => l.id === localLog.id)) ||
+                  (localLog.timestamp && !mergedEmailLogs.some(l => l.timestamp === localLog.timestamp))
+                )) {
                   mergedEmailLogs.push(localLog);
                 }
               });
@@ -499,7 +502,10 @@
             if (Array.isArray(localLogs) && localLogs.length > 0) {
               const mergedLogs = [...loadedLogs];
               localLogs.forEach(localLog => {
-                if (localLog && localLog.id && !mergedLogs.some(l => l.id === localLog.id)) {
+                if (localLog && (
+                  (localLog.id && !mergedLogs.some(l => l.id === localLog.id)) ||
+                  (localLog.timestamp && !mergedLogs.some(l => l.timestamp === localLog.timestamp))
+                )) {
                   mergedLogs.push(localLog);
                 }
               });
