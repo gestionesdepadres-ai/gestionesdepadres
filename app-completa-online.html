@@ -251,6 +251,8 @@
       const [taskTextFormat, setTaskTextFormat] = useState({ bold: false, fontSize: 16, align: 'left' });
       const [selectAllMenu, setSelectAllMenu] = useState(false); // Global toggle for menu formatting
       const [actionLogs, setActionLogs] = useState([]); // Phase 4: Logs
+      const [logFilter, setLogFilter] = useState('7'); // Default: 7 days (one week)
+      const [dataLoaded, setDataLoaded] = useState(false); // Track if Firebase data has loaded
       const [emailConfig, setEmailConfig] = useState({
         serviceId: '',
         templateId: '',
@@ -461,19 +463,68 @@
             messages: { subject: 'Nuevo Mensaje Interno', body: 'Has recibido un nuevo mensaje en la plataforma.' }
 
           })); // [NEW]
-          if (results[17]) setSentEmailLog(safeParse(results[17].value, []));
+          // Sent email log merging
+          let loadedEmailLogs = [];
+          if (results[17]) {
+            loadedEmailLogs = safeParse(results[17].value, []);
+          }
+          const localEmailLogsStr = localStorage.getItem('sentEmailLog');
+          if (localEmailLogsStr) {
+            const localEmailLogs = safeParse(localEmailLogsStr, []);
+            if (Array.isArray(localEmailLogs) && localEmailLogs.length > 0) {
+              const mergedEmailLogs = [...loadedEmailLogs];
+              localEmailLogs.forEach(localLog => {
+                if (localLog && localLog.id && !mergedEmailLogs.some(l => l.id === localLog.id)) {
+                  mergedEmailLogs.push(localLog);
+                }
+              });
+              mergedEmailLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+              const filteredEmailLogs = mergedEmailLogs.slice(0, 100); // Keep last 100
+              if (filteredEmailLogs.length > loadedEmailLogs.length) {
+                loadedEmailLogs = filteredEmailLogs;
+                await saveData('sentEmailLog', filteredEmailLogs);
+              }
+            }
+          }
+          setSentEmailLog(loadedEmailLogs);
 
-          // Logs
-          if (results[12]) setActionLogs(safeParse(results[12].value, []));
+          // Logs merging logic
+          let loadedLogs = [];
+          if (results[12]) {
+            loadedLogs = safeParse(results[12].value, []);
+          }
+          const localLogsStr = localStorage.getItem('actionLogs');
+          if (localLogsStr) {
+            const localLogs = safeParse(localLogsStr, []);
+            if (Array.isArray(localLogs) && localLogs.length > 0) {
+              const mergedLogs = [...loadedLogs];
+              localLogs.forEach(localLog => {
+                if (localLog && localLog.id && !mergedLogs.some(l => l.id === localLog.id)) {
+                  mergedLogs.push(localLog);
+                }
+              });
+              mergedLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+              const cutoff = new Date();
+              cutoff.setDate(cutoff.getDate() - 30);
+              const filteredLogs = mergedLogs.filter(l => new Date(l.timestamp) > cutoff);
+              if (filteredLogs.length > loadedLogs.length) {
+                loadedLogs = filteredLogs;
+                await saveData('actionLogs', filteredLogs);
+              }
+            }
+          }
+          setActionLogs(loadedLogs);
 
           // Menu default font size
           setTextFormat(prev => ({ ...prev, fontSize: 24 }));
+          setDataLoaded(true);
 
         } catch (error) {
           console.error('CRITICAL: LoadData Initialization Failure', error);
           // Fail-safe init
           setAppointments([]);
           setMenus([]);
+          setDataLoaded(true);
         }
       };
 
@@ -1459,6 +1510,24 @@ ${q.events.map(e => `[${e.time}] ${e.user}: ${e.action} - ${e.detail}`).join('\n
         setPendingTaskInputs({}); // Clear pending inputs
         alert('¡Tareas guardadas y firmadas!');
       };
+
+      if (!dataLoaded) {
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md text-center animate-fade-in">
+              <Users className="mx-auto mb-4 text-indigo-600 animate-pulse" size={64} />
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">Gestiones de Padres</h1>
+              <div className="flex items-center justify-center gap-2 text-indigo-600 font-medium">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>Cargando datos...</span>
+              </div>
+            </div>
+          </div>
+        );
+      }
 
       if (mainView === 'login') {
         return (
@@ -4333,10 +4402,25 @@ ${q.events.map(e => `[${e.time}] ${e.user}: ${e.action} - ${e.detail}`).join('\n
 
               {/* ACTIVITY LOGS ADMIN SECTION */}
               <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-4">Logs de Actividad (Últimos 30 días)</h2>
-                <div className="bg-white rounded-lg border overflow-hidden shadow-sm max-h-96 overflow-y-auto">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                  <h2 className="text-2xl font-bold text-gray-800">Logs de Actividad</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 font-medium">Mostrar:</span>
+                    <select
+                      value={logFilter}
+                      onChange={(e) => setLogFilter(e.target.value)}
+                      className="border rounded-lg px-3 py-1.5 text-sm bg-white text-gray-700 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="1">Últimas 24 horas</option>
+                      <option value="7">Última semana</option>
+                      <option value="30">Últimos 30 días</option>
+                      <option value="all">Todo el historial</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg border shadow-sm max-h-96 overflow-y-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-100">
+                    <thead className="bg-gray-100 sticky top-0 z-10">
                       <tr>
                         <th className="p-3 text-left font-bold text-gray-600">Fecha</th>
                         <th className="p-3 text-left font-bold text-gray-600">Usuario</th>
@@ -4345,17 +4429,32 @@ ${q.events.map(e => `[${e.time}] ${e.user}: ${e.action} - ${e.detail}`).join('\n
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {[...actionLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(log => (
-                        <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="p-3 whitespace-nowrap text-gray-500">{new Date(log.timestamp).toLocaleString()}</td>
-                          <td className="p-3 font-bold text-indigo-700">{log.user ? log.user.toUpperCase() : 'SISTEMA'}</td>
-                          <td className="p-3 text-gray-700 font-medium">{log.action}</td>
-                          <td className="p-3 text-gray-600">{log.details}</td>
-                        </tr>
-                      ))}
-                      {actionLogs.length === 0 && (
+                      {[...actionLogs]
+                        .filter(log => {
+                          if (logFilter === 'all') return true;
+                          const logDate = new Date(log.timestamp);
+                          const cutoff = new Date();
+                          cutoff.setDate(cutoff.getDate() - parseInt(logFilter));
+                          return logDate >= cutoff;
+                        })
+                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                        .map(log => (
+                          <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="p-3 whitespace-nowrap text-gray-500">{new Date(log.timestamp).toLocaleString()}</td>
+                            <td className="p-3 font-bold text-indigo-700">{log.user ? log.user.toUpperCase() : 'SISTEMA'}</td>
+                            <td className="p-3 text-gray-700 font-medium">{log.action}</td>
+                            <td className="p-3 text-gray-600">{log.details}</td>
+                          </tr>
+                        ))}
+                      {[...actionLogs].filter(log => {
+                        if (logFilter === 'all') return true;
+                        const logDate = new Date(log.timestamp);
+                        const cutoff = new Date();
+                        cutoff.setDate(cutoff.getDate() - parseInt(logFilter));
+                        return logDate >= cutoff;
+                      }).length === 0 && (
                         <tr>
-                          <td colSpan="4" className="p-8 text-center text-gray-400 italic">No hay actividad registrada en los últimos 30 días.</td>
+                          <td colSpan="4" className="p-8 text-center text-gray-400 italic">No hay actividad registrada en este período.</td>
                         </tr>
                       )}
                     </tbody>
